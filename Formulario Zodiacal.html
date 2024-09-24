@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Signo Zodiacal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #624E88; /* Color de fondo */
+            color: #E6D9A2; /* Color del texto */
+        }
+        .container {
+            margin-top: 50px;
+            background-color: #8967B3; /* Color del formulario */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background-color: #CB80AB; /* Color del botón */
+            border-color: #CB80AB;
+        }
+        .btn-primary:hover {
+            background-color: #B26B97; /* Color del botón en hover */
+            border-color: #B26B97;
+        }
+        h1, h3 {
+            color: #E6D9A2; /* Color de los títulos */
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa; /* Fondo del resultado */
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center">Descubre tu Signo Zodiacal</h1>
+        <p class="text-center">Ingrese su nombre y fecha de nacimiento para obtener su signo y predicción mensual.</p>
+        <form id="zodiacForm">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" placeholder="Escribe tu nombre" required>
+            </div>
+            <div class="mb-3">
+                <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="birthdate" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Obtener mi signo</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3 id="greeting"></h3>
+            <p id="zodiacSign"></p>
+            <p id="prediction"></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('zodiacForm');
+        const resultDiv = document.getElementById('result');
+        const greeting = document.getElementById('greeting');
+        const zodiacSign = document.getElementById('zodiacSign');
+        const prediction = document.getElementById('prediction');
+
+        const zodiacSigns = [
+            { sign: "Aries", startDate: "03-21", endDate: "04-19" },
+            { sign: "Tauro", startDate: "04-20", endDate: "05-20" },
+            { sign: "Géminis", startDate: "05-21", endDate: "06-20" },
+            { sign: "Cáncer", startDate: "06-21", endDate: "07-22" },
+            { sign: "Leo", startDate: "07-23", endDate: "08-22" },
+            { sign: "Virgo", startDate: "08-23", endDate: "09-22" },
+            { sign: "Libra", startDate: "09-23", endDate: "10-22" },
+            { sign: "Escorpio", startDate: "10-23", endDate: "11-21" },
+            { sign: "Sagitario", startDate: "11-22", endDate: "12-21" },
+            { sign: "Capricornio", startDate: "12-22", endDate: "01-19" },
+            { sign: "Acuario", startDate: "01-20", endDate: "02-18" },
+            { sign: "Piscis", startDate: "02-19", endDate: "03-20" },
+        ];
+
+        const predictions = {
+            "Aries": ["Este mes, tus proyectos se alinearán con el éxito.", "Tendrás nuevas oportunidades de crecimiento personal."],
+            "Tauro": ["Es momento de enfocarte en tus finanzas, hay buenas noticias.", "Podrías encontrar una nueva fuente de ingresos inesperada."],
+            "Géminis": ["Las comunicaciones serán clave para lograr lo que deseas este mes.", "Un viejo amigo te sorprenderá con una invitación especial."],
+            "Cáncer": ["Es el momento ideal para fortalecer los lazos familiares.", "Tu intuición estará más fuerte que nunca."],
+            "Leo": ["Este mes, brillarás en todo lo que hagas, ¡aprovecha!", "Tendrás la oportunidad de liderar un nuevo proyecto emocionante."],
+            "Virgo": ["Organiza tus ideas, ya que todo lo que planees este mes será exitoso.", "Tus habilidades serán reconocidas por las personas adecuadas."],
+            "Libra": ["El equilibrio será tu mayor fortaleza este mes.", "Una relación cercana será más fuerte y significativa."],
+            "Escorpio": ["Algo que has deseado por mucho tiempo finalmente se hará realidad.", "La pasión será tu guía este mes, úsala sabiamente."],
+            "Sagitario": ["Este mes, el viaje y la aventura serán parte importante de tu vida.", "Una oportunidad de aprendizaje te abrirá nuevas puertas."],
+            "Capricornio": ["Tu disciplina dará frutos, sigue adelante con tus planes.", "Un nuevo reto te llevará a mejorar tus habilidades profesionales."],
+            "Acuario": ["Tendrás grandes ideas que impactarán tu entorno.", "Este es el mes ideal para emprender proyectos innovadores."],
+            "Piscis": ["Tu creatividad estará al máximo este mes.", "Un sueño que parecía distante comenzará a materializarse."],
+        };
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const birthdate = new Date(document.getElementById('birthdate').value);
+            const birthMonthDay = ('0' + (birthdate.getMonth() + 1)).slice(-2) + '-' + ('0' + birthdate.getDate()).slice(-2);
+            
+            let userZodiac = '';
+            for (const zodiac of zodiacSigns) {
+                if (birthMonthDay >= zodiac.startDate && birthMonthDay <= zodiac.endDate) {
+                    userZodiac = zodiac.sign;
+                    break;
+                }
+            }
+            if (!userZodiac) {
+                userZodiac = zodiacSigns.find(z => z.startDate === "12-22").sign;
+            }
+
+            // Selecciona una predicción aleatoria
+            const randomPrediction = predictions[userZodiac][Math.floor(Math.random() * predictions[userZodiac].length)];
+
+            // Muestra los resultados
+            greeting.textContent = `¡Hola, ${name}!`;
+            zodiacSign.textContent = `Tu signo zodiacal es: ${userZodiac}`;
+            prediction.textContent = `Predicción mensual: ${randomPrediction}`;
+
+            resultDiv.style.display = 'block';
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
